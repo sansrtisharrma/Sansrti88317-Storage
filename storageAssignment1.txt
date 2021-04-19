@@ -1,0 +1,115 @@
+-- display all the information of the emp table
+db.emp.find().pretty()
+
+-- display unique jobs from emp table
+db.emp.distinct("JOB")
+
+-- list the emps in the asc order of their salaries
+db.emp.find({},{"ENAME":1,"_id":0}).sort({"SAL":1})
+
+-- list the details of the  emps in the asc order of the deptnos and desc of jobs
+db.emp.find().sort({"DEPTNO":1,"JOB":-1})
+
+-- display all the unique job groups in the descending order
+-- db.emp.distinct("JOB").sort({"JOB":-1})
+
+-- display all the details of all 'mgrs'
+ db.emp.find({"JOB":"MANAGER"})
+
+-- list the emps who joined before 1981
+db.emp.find({"hiredate":{"$lt":('1981-1-1')}})
+
+-- list the empno,ename, sal, daily sal of all emps in the asc order of annual
+db.emp.find({},{
+... "empno":1,
+... "ename":1,
+... "sal":1,
+... "sal/30":1,
+... "sal*12":1
+... }
+... ).sort({
+... "sal*12":1
+... });
+
+-- display the empno, ename, job, hiredate , exp of all mgrs
+db.emp.find({ "":{"$in":[select mgr from emp]},{ "empno":1, "ename":1, "job":1, "hiredate":1, "timestampdiff(year)":1, "hiredate":1, "curdate()":1 }  );
+
+-- list the empno, ename, sal, exp,of all emps working for mgr 7369
+db.emp.find({
+... "mgr":7369
+... },{
+... "empno":1,
+... "ename":1,
+... "sal":1,
+... "exp":1
+... });
+
+-- display all the details of the emps whose comm is more than their sal
+db.emp.find({ "$where":"this.comm>this.sal" });
+
+-- list the emps along with their exp and daily sal is more than Rs.100
+db.emp.find({"sal/30)":{"$gt":100}});
+
+-- list the emps who are either 'clerk' or'analyst' in the desc order
+db.emp.find({
+... "$or":[{
+... "$where":"this.job==this.'clerk' "
+... },{"$where":"this.job==this.'ANALYST'"
+... }]
+... }).sort({
+... "job":-1});
+
+-- list the emps who joined on 1-May-81, 3-dec-81, 17-dec-81, 19-jan-80 in asc order of seniority
+db.emp.find({ "hiredate":{"$in":['01-may-81','03-dec-81,'17-dec-81','19-jan-80']}}).sort({"hiredate":1});
+
+-- list the emp who are working for the deptno 10 or 20
+db.emp.find({
+... "$or":[{
+... "deptno":10
+... },{"deptno":20
+... }]});
+
+-- list the enames those are having five characters in their name
+db.emp.find({"length(ename)":5},{"ename":1});
+
+-- list the enames those are starting with "S"and five characters
+db.emp.find({"$and":[{"$where":"this.name==this.'S%'"},{"length(ename)":5}]},{"ename":1}};
+
+-- list the emps those are having four chars and third character must be "R"
+db.emp.find({"$and":[{"length(ename)":4},{"$where":"this.ename==this.'R%'"}]});
+
+-- list the five character names starting with "s" and ending with "h" 
+db.emp.find({"$and":[{"length(ename)":5},{"$where":"this.ename==this.'S%H'"}]});
+
+-- list the emps who joined in january
+db.emp.find({"$where":"this.to_char(hiredate,'mon')==this.'jan'"});
+
+-- list the emps whose names having a character set"ll" together
+db.emp.find({"$where":"this.ename==this.'%ll%'"});
+
+-- list the emps who does not belong to deptno20
+db.emp.find({"deptno":{"$ne":20}});
+
+-- list all the emps except'president ' & 'mgr' in asc order of salaries
+db.emp.find({"jobnot":{"$in":['PRESIDENT','MANAGER']}}).SORT({"SAL":1});
+-- list the emps whose empno not starting with digit 78
+db.emp.find({"empno not":'78%'});
+
+-- list the emps who are working under 'mgr'
+db.emp e, emp m.find({"$where":"this.e.mgr==this.m.empno"},{"e.ename||'worksfor'||m.ename":1}};
+
+-- list the emps who joined in any year but not belongs to the month of march
+db.emp.find({"to_char(hiredate,'MON') not ":{$in":['MAR'}});
+
+-- list all the clerks of deptno20
+db.emp.find({"$and":[{"$where":"this.job==this.'CLERK'"},{"deptno":20}]});
+
+-- list the emps of deptno30 or10 joined in the year 1981
+db.emp.find({"$and":[{"to_char(hiredate,'YYYY')":{"$in":['1981']}},{"$or":[{"deptno":30},{deptno":10)}]}]});
+
+-- display the details of smith
+db.emp.find({"ename":'smith'});
+
+-- display the location of smith
+db.emp e,dept d.find({"$and":[{"$where":"this.e.ename==this.'SMITH'"},{"$where":"this.e.deptno==this.d.deptno"}]},{"loc":1});
+ 
